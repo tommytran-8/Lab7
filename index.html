@@ -83,123 +83,118 @@
       // From the 4 CRUD actions, this is the READ action, and uses the GET http method.
       // The main difference from fetchOne() will be the URL you request from; check
       // the writeup to view the URL pattern for fetch one and fetch all
-      function fetchAll() {
+      async function fetchAll() {
         let url = document.getElementById("endpoint").value;
-        fetch(url)
-        .then(response => {
-            if (response.ok) {
-              return response.json();
-            }
-            else{
-              throw new Error("Network Error: 404");
-            }
+        try{
+          const response = await fetch(url, {
+            method : 'get',
           })
-        .then(dataList =>{
-          document.getElementById("output").textContent = JSON.stringify(dataList);
-        })
-        .catch(error =>{
+          if (response.ok) {
+            let data = await response.json();
+            document.getElementById("output").textContent = JSON.stringify(data);
+          }
+          else{
+            throw new Error("Network Error: " + response.status);
+          }
+        }
+        catch(error) {
             document.getElementById("output").textContent = error;
-        });
+        }
       }
 
       // This function should fetch one entry from the given endpoint.
       // From the 4 CRUD actions, this is the READ action, and uses the GET http method.
       // The main difference from fetchAll() will be the URL you request from; check
       // the writeup to view the URL pattern for fetch one and fetch all
-      function fetchOne() {
+      async function fetchOne() {
         let userinput = window.prompt("Enter record id");
         let url = document.getElementById("endpoint").value;
-        fetch(url + '/' + userinput)
-        .then(response => {
-            if (response.ok) {
-              return response.json();
-            }
-            else{
-              throw new Error("Network Error: 404");
-            }
+        try {
+          const response = await fetch(url + '/' + userinput, {
+            method : 'get',
           })
-        .then(data =>{
-          document.getElementById("output").textContent = JSON.stringify(data);
-        })
-        .catch(error =>{
+          if (response.ok) {
+            let data = await response.json();
+            document.getElementById("output").textContent = JSON.stringify(data);
+          }
+          else{
+            throw new Error("Network Error: " + response.status);
+          }
+        }
+        
+        catch (error) {
             document.getElementById("output").textContent = error;
-        });
+        }
       }
 
       // This function should use fetch to create one entry in the given endpoint.
       // From the 4 CRUD actions, this is the CREATE action, and uses the POST http method.
       // The main difference from updateRecord() will be the URL you send data to; check
       // the writeup to view the URL pattern for create and update
-      function createRecord(e) {
-        
-        document.getElementById("recordForm").style.display = "inline";
-        document.getElementById("recordForm").addEventListener('submit', (e)=>{
-          e.preventDefault();
+      async function createRecord(inp) {
+        if (inp == "show") document.getElementById("recordForm").style.display = "inline";
+        else {
           let author = document.getElementById("author").value;
           let title = document.getElementById("title").value;
           let url = document.getElementById("endpoint").value;
-          fetch(url, {
-          method: 'post',
-          headers: {
-            'Content-type': 'application/json'
-          },
-          body: JSON.stringify({author: `${author}`, title: `${title}`})})
-          .then(response=>{
+          try {
+            const response = await fetch(url, {
+            method: 'post',
+            headers: {
+              'Content-type': 'application/json'
+            },
+            body: JSON.stringify({author: `${author}`, title: `${title}`})})
             if (response.ok) {
-              return response.json();
+              let data = await response.json();
+              document.getElementById("recordForm").style.display = "none";
+              document.getElementById("output").textContent = JSON.stringify(data);
             }
             else{
-              throw new Error("Network Error: 404");
+              throw new Error("Network Error: " + response.status);
             }
-          })
-          .then(data=> {
-            document.getElementById("recordForm").style.display = "none";
-            document.getElementById("output").textContent = JSON.stringify(data);
-          })
-          .catch(error =>{
+          }
+          catch(error) {
             document.getElementById("output").textContent = error;
-          });
-        })
-      
+          };
+        }
       }
 
       // This function should use fetch to update one existing entry in the given endpoint.
       // From the 4 CRUD actions, this is the UPDATE action, and uses the PUT http method.
       // The main difference from createRecord() will be the URL you send data to; check
       // the writeup to view the URL pattern for create and update
-      function updateRecord(e) {
+      async function updateRecord(inp) {
         // TODO
-        document.getElementById("recordForm").style.display = "inline";
-        document.getElementById("recordIDcontainer").style.display = "inline";
-        document.getElementById("recordForm").addEventListener('submit', (e)=>{
-          e.preventDefault();
+        if (inp == "show"){
+          document.getElementById("recordForm").style.display = "inline";
+          document.getElementById("recordIDcontainer").style.display = "inline";
+        }
+        else {
           let author = document.getElementById("author").value;
           let title = document.getElementById("title").value;
           let id = document.getElementById("recordID").value;
           let url = document.getElementById("endpoint").value;
-          fetch(url + '/' + id, {
-          method: 'put',
-          headers: {
-            'Content-type': 'application/json'
-          },
-          body: JSON.stringify({author: `${author}`, title: `${title}`})})
-          .then(response=>{
+          try {
+            const response = await fetch(url + '/' + id, {
+            method: 'put',
+            headers: {
+              'Content-type': 'application/json'
+            },
+            body: JSON.stringify({author: `${author}`, title: `${title}`})})
             if (response.ok) {
-              return response.json();
+              let data = await response.json();
+              document.getElementById("recordForm").style.display = "none";
+              document.getElementById("recordIDcontainer").style.display = "none";
+              document.getElementById("output").textContent = JSON.stringify(data);
             }
             else{
-              throw new Error("Network Error: 404");
+              throw new Error("Network Error: " + response.status);
             }
-          })
-          .then(data=> {
-            document.getElementById("recordForm").style.display = "none";
-            document.getElementById("recordIDcontainer").style.display = "none";
-            document.getElementById("output").textContent = JSON.stringify({author: `${author}`, title: `${title}`, id: `${id}`});
-          })
-          .catch(error =>{
+          }
+          catch(error){
             document.getElementById("output").textContent = error;
-          });
-        })
+          };
+        }
         
       }
 
@@ -208,26 +203,24 @@
       // The main difference from fetchOne() will be the HTTP method you use to make your
       // request; check the writeup to view the URL pattern for get one and delete. THERE IS NO 
       // delete all, only delete one.
-      function deleteRecord() {
+      async function deleteRecord() {
         let url = document.getElementById("endpoint").value;
         let userinput = window.prompt("Enter record id");
-        fetch(url + '/' + userinput, {
-            method: 'delete'
-          })
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            }
-            else{
-              throw new Error("Network Error: 404");
-            }
-          })
-          .then(data=>{
+        try {
+          const response = await fetch(url + '/' + userinput, {
+              method: 'delete'
+            })
+          if (response.ok) {
+            let data = await response.json();
             document.getElementById("output").textContent = JSON.stringify(data);
-          })
-          .catch(error =>{
-            document.getElementById("output").textContent = error;
-          });
+          }
+          else{
+            throw new Error("Network Error: " + response.status);
+          }
+        }
+        catch(error){
+          document.getElementById("output").textContent = error;
+        }
       }
 
 
